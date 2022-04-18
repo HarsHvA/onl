@@ -19,6 +19,7 @@ class _SignupState extends State<Signup> {
   late String textFieldLabel;
   final formKey = GlobalKey<FormState>();
   String? _email, _password, _name;
+  bool _isTeacher = false;
   List<String> designationArray = ["Teacher", "Student"];
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
   @override
@@ -92,13 +93,20 @@ class _SignupState extends State<Signup> {
                           fillColor: primaryColor,
                         ),
                         hint: const Text('Select designation'),
+                        value: "Student",
                         items: designationArray
                             .map((f) => DropdownMenuItem(
                                   value: f,
                                   child: Text(f),
                                 ))
                             .toList(),
-                        onChanged: (String? value) {},
+                        onChanged: (String? value) {
+                          if (value == "Teacher") {
+                            _isTeacher = true;
+                          } else {
+                            _isTeacher = false;
+                          }
+                        },
                       ),
                     ),
                     Padding(
@@ -178,7 +186,8 @@ class _SignupState extends State<Signup> {
   void submit() async {
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
-      await auth.createUserWithEmailAndPassword(_email!, _password!, _name!);
+      await auth.createUserWithEmailAndPassword(
+          _email!, _password!, _name!, _isTeacher);
       Navigator.pop(context);
       Navigator.pushAndRemoveUntil(
           context,
