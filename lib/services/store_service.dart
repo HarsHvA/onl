@@ -86,7 +86,7 @@ class StoreService {
   Stream<List<NotesModel>> getMySemNotes(sem) {
     return notesCollection
         .orderBy('dateModified', descending: true)
-        .where("Sem", isEqualTo: sem as num)
+        .where("sem", isEqualTo: sem as num)
         .snapshots()
         .asyncMap((event) {
       return event.docs.map((e) {

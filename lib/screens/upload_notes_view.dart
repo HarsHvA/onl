@@ -87,7 +87,7 @@ class _UploadNotesViewState extends State<UploadNotesView> {
                 break;
 
               case "Semester":
-                _sem = newValue! as int?;
+                _sem = int.parse(newValue!);
                 break;
             }
           },
