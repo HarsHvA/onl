@@ -46,13 +46,14 @@ class StoreService {
   }
 
   Future uploadeNotes(
-      name, dateModified, courseName, moduleNo, uploaderName) async {
+      name, dateModified, courseName, moduleNo, uploaderName, sem) async {
     await notesCollection.add({
       'name': name,
       'dateModified': dateModified,
       'courseName': courseName,
       'moduleNo': moduleNo,
-      'uploaderName': uploaderName
+      'uploaderName': uploaderName,
+      'sem': sem,
     });
   }
 
@@ -76,7 +77,27 @@ class StoreService {
             dateModified: data['dateModified'].toDate(),
             moduleNo: data['moduleNo'],
             name: data['name'],
-            uploaderName: data['uploaderName']);
+            uploaderName: data['uploaderName'],
+            sem: data['sem'] ?? 1);
+      }).toList();
+    });
+  }
+
+  Stream<List<NotesModel>> getMySemNotes(sem) {
+    return notesCollection
+        .orderBy('dateModified', descending: true)
+        .where("Sem", isEqualTo: sem as num)
+        .snapshots()
+        .asyncMap((event) {
+      return event.docs.map((e) {
+        final dynamic data = e.data();
+        return NotesModel(
+            courseName: data['courseName'],
+            dateModified: data['dateModified'].toDate(),
+            moduleNo: data['moduleNo'],
+            name: data['name'],
+            uploaderName: data['uploaderName'],
+            sem: data['sem'] ?? 1);
       }).toList();
     });
   }

@@ -17,6 +17,7 @@ class UploadNotesView extends StatefulWidget {
 class _UploadNotesViewState extends State<UploadNotesView> {
   String? _courseName;
   String? _moduleNo;
+  int? _sem;
   final formKey = GlobalKey<FormState>();
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
   @override
@@ -42,6 +43,9 @@ class _UploadNotesViewState extends State<UploadNotesView> {
               makeInput(
                 label: "Module no",
               ),
+              makeInput(
+                label: "Semester",
+              ),
               button()
             ],
           ),
@@ -63,6 +67,8 @@ class _UploadNotesViewState extends State<UploadNotesView> {
           height: 1,
         ),
         TextFormField(
+          keyboardType:
+              (label == "Semester") ? TextInputType.number : TextInputType.text,
           validator: (value) {
             if (value!.isEmpty) {
               return "Field can't be empty";
@@ -78,6 +84,10 @@ class _UploadNotesViewState extends State<UploadNotesView> {
 
               case "Module no":
                 _moduleNo = newValue!;
+                break;
+
+              case "Semester":
+                _sem = newValue! as int?;
                 break;
             }
           },
@@ -115,7 +125,7 @@ class _UploadNotesViewState extends State<UploadNotesView> {
 
       await StorageService(fileName: fileName).uploadNotes(documentPath);
       await StoreService(uid: uid)
-          .uploadeNotes(fileName, date, _courseName, _moduleNo, username);
+          .uploadeNotes(fileName, date, _courseName, _moduleNo, username, _sem);
 
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
