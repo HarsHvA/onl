@@ -58,7 +58,7 @@ class StoreService {
   }
 
   Future uploadeCircular(name, dateCreated, uploaderName) async {
-    await notesCollection.add({
+    await circularCollection.add({
       'name': name,
       'uploaderName': uploaderName,
       'dateCreated': dateCreated
@@ -103,7 +103,7 @@ class StoreService {
   }
 
   Stream<List<CircularModel>> getAllCirculars() {
-    return notesCollection
+    return circularCollection
         .orderBy('dateCreated', descending: true)
         .snapshots()
         .asyncMap((event) {
@@ -116,13 +116,4 @@ class StoreService {
       }).toList();
     });
   }
-
-  // Future<bool> checkIfUserExists() async {
-  //   final userDocRef = users.doc(uid);
-  //   final doc = await userDocRef.get();
-  //   if (doc.exists) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 }
