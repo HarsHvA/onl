@@ -9,8 +9,8 @@ class AuthService {
       _firebaseAuth.authStateChanges().map((User? user) => user);
 
 // Email and password signUP
-  Future<String> createUserWithEmailAndPassword(
-      String email, String password, String name, bool isTeacher) async {
+  Future<String> createUserWithEmailAndPassword(String email, String password,
+      String name, bool isTeacher, String usn) async {
     final currentUser = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email, password: password);
 
@@ -18,7 +18,8 @@ class AuthService {
     await _firebaseAuth.currentUser!.updateDisplayName(name);
     await currentUser.user!.reload();
     await StoreService(uid: currentUser.user!.uid)
-        .updateUserData(name, email, isTeacher);
+        .updateUserData(name, email, isTeacher, usn);
+    await verifyEmail();
     return currentUser.user!.uid;
   }
 
@@ -38,6 +39,14 @@ class AuthService {
 
   signOut() {
     _firebaseAuth.signOut();
+  }
+
+  Future verifyEmail() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
   }
 
   Future sendPasswordResetEmail(String email) async {

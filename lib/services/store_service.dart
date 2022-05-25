@@ -19,7 +19,8 @@ class StoreService {
   final CollectionReference circularCollection =
       FirebaseFirestore.instance.collection('circular');
 
-  Future updateUserData(String name, String email, bool isTeacher) async {
+  Future updateUserData(
+      String name, String email, bool isTeacher, String? usn) async {
     if (isTeacher) {
       return await teachersCollection.doc(uid).set({
         'Name': name,
@@ -33,6 +34,7 @@ class StoreService {
         'Email': email,
         'isTeacher': isTeacher,
         'uid': uid,
+        'usn': usn,
       });
     }
   }

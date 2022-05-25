@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:onl/common/colors.dart';
+import 'package:onl/screens/forgot_password.dart';
 import '../widgets/loader_dialog.dart';
 import './home.dart';
 import './signup.dart';
@@ -114,10 +116,10 @@ class _LoginState extends State<Login> {
                 Column(children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (_) => const ForgotPasswordScreen()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ForgotPasswordScreen()));
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -170,10 +172,18 @@ class _LoginState extends State<Login> {
       final auth = Provider.of<AuthService>(context, listen: false);
       await auth.signIn(_email, _password);
       Navigator.pop(context);
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const Home()),
-          (Route<dynamic> route) => false);
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+                "Email not verified! We have resent the verification email please verify before logging in!")));
+      } else {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const Home()),
+            (Route<dynamic> route) => false);
+      }
     } catch (e) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context)

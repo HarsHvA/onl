@@ -49,7 +49,12 @@ class _HomePageState extends State<HomePage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             final User? user = snapshot.data;
-            return user == null ? const LoginOrSignup() : const Home();
+
+            return user == null
+                ? const LoginOrSignup()
+                : user.emailVerified
+                    ? const Home()
+                    : const LoginOrSignup();
           } else {
             return const Scaffold(
               body: Center(

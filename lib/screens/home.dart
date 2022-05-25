@@ -52,10 +52,14 @@ class _HomeState extends State<Home> {
                         onTap: () {
                           _showSemSheet();
                         },
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            "SEM",
-                            style: TextStyle(
+                            "SEM-" +
+                                context
+                                    .watch<SemesterNoController>()
+                                    .semNo
+                                    .toString(),
+                            style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15),

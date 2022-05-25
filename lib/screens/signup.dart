@@ -5,7 +5,6 @@ import 'package:onl/common/colors.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../widgets/loader_dialog.dart';
-import 'home.dart';
 import 'login.dart';
 
 class Signup extends StatefulWidget {
@@ -18,7 +17,7 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   late String textFieldLabel;
   final formKey = GlobalKey<FormState>();
-  String? _email, _password, _name;
+  String? _email, _password, _name, _usn = "";
   bool _isTeacher = false;
   List<String> designationArray = ["Teacher", "Student"];
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
@@ -70,6 +69,9 @@ class _SignupState extends State<Signup> {
                             makeInput(label: "Email"),
                             makeInput(label: "Name"),
                             makeInput(label: "Password", obscureText: true),
+                            _isTeacher
+                                ? const SizedBox()
+                                : makeInput(label: "USN"),
                           ],
                         ),
                       ),
@@ -101,11 +103,13 @@ class _SignupState extends State<Signup> {
                                 ))
                             .toList(),
                         onChanged: (String? value) {
-                          if (value == "Teacher") {
-                            _isTeacher = true;
-                          } else {
-                            _isTeacher = false;
-                          }
+                          setState(() {
+                            if (value == "Teacher") {
+                              _isTeacher = true;
+                            } else {
+                              _isTeacher = false;
+                            }
+                          });
                         },
                       ),
                     ),
@@ -187,12 +191,11 @@ class _SignupState extends State<Signup> {
     try {
       final auth = Provider.of<AuthService>(context, listen: false);
       await auth.createUserWithEmailAndPassword(
-          _email!, _password!, _name!, _isTeacher);
+          _email!, _password!, _name!, _isTeacher, _usn!);
       Navigator.pop(context);
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const Home()),
-          (Route<dynamic> route) => false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              "Successfully signed up! An email verification link has been sent login after verifying the email")));
     } catch (e) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context)
@@ -222,6 +225,11 @@ class _SignupState extends State<Signup> {
     String pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regExp = RegExp(pattern);
+    if (_isTeacher) {
+      if (!value.contains("dsce.edu.in")) {
+        return "Enter valid DSCE teacher email id";
+      }
+    }
     if (value.isEmpty) {
       return "Email is Required";
     } else if (!regExp.hasMatch(value)) {
@@ -251,6 +259,12 @@ class _SignupState extends State<Signup> {
               return validatePassword(value!);
             } else if (label == "Name") {
               return validateName(value!);
+            } else if (label == "USN") {
+              if (value!.length == 10) {
+                return value;
+              } else {
+                return null;
+              }
             }
             return null;
           },
@@ -265,6 +279,9 @@ class _SignupState extends State<Signup> {
                 break;
               case "Password":
                 _password = newValue!;
+                break;
+              case "USN":
+                _usn = newValue!;
                 break;
             }
           },
